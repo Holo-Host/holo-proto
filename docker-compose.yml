@@ -1,0 +1,15 @@
+version: 3
+
+volumes:
+  host-home-volume:
+
+services:
+  host:
+    build: ./host
+    volumes:
+      - ./host:/root/host
+      - host-home-volume:/home
+  hchc:
+    build: ./hchc
+  happ:
+    build: ./happ

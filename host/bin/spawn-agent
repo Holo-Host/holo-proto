@@ -1,0 +1,9 @@
+#!/bin/bash
+
+USERNAME=$1
+
+useradd $USERNAME
+cd /home/$USERNAME
+hcadmin init $USERNAME
+
+# TODO: join app(s) ?
