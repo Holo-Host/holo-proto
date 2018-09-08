@@ -2,16 +2,19 @@ const fs = require('fs')
 const path = require('path')
 
 // Location for hosted agents' home directory (instead of /home)
-export const AGENT_DIR = '/agents'
+const AGENT_DIR = '/agents'
 
 // Name to `hcd join` the app under
 // (there's only one app per agent and this is it)
-export const HOSTED_APP_NAME = 'happ'
+const HOSTED_APP_NAME = 'happ'
 
 
-export const getAgentHome = agentHash => path.join(AGENT_DIR, agentHash)
+const PROXY_PORT = 3000
 
-export const getUserDnaHash = agentHash => {
+
+const getAgentHome = agentHash => path.join(AGENT_DIR, agentHash)
+
+const getUserDnaHash = agentHash => {
   const hashFile = path.join(
     getAgentHome(agentHash),
     '.holochain',
@@ -21,7 +24,7 @@ export const getUserDnaHash = agentHash => {
   return fs.readFileSync(hashFile)
 }
 
-export const getAgentPort = agentHash => {
+const getAgentPort = agentHash => {
   const portFile = path.join(
     getAgentHome(agentHash),
     '.holo-port'
@@ -36,4 +39,13 @@ const getInstalledUsers = () => {
     hashes.push(hash)
   })
   return hashes
+}
+
+module.exports = {
+  AGENT_DIR,
+  HOSTED_APP_NAME,
+  PROXY_PORT,
+  getAgentHome,
+  getUserDnaHash,
+  getAgentPort,
 }

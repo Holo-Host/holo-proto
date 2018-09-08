@@ -4,8 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build": "scripts/build.sh",
-    "watch": "scripts/watch.sh"
+    "build": "rm -rf build/* && tsc",
+    "watch": "rm -rf build/* && tsc -w"
   },
   "dependencies": {
     "axios": "^0.18.0",

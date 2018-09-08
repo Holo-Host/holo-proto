@@ -1,6 +1,5 @@
 const axios = require('axios')
 const express = require('express')
-const fs = require('fs')
 
 const C = require('./common')
 
@@ -44,8 +43,9 @@ app.use('/dispatch', (req, res) => {
 
 })
 
+app.listen(8000)
 
-const switchboardUrl = (zome, func) => `http://localhost:4000/fn/${zome}/${func}`
+const switchboardUrl = (zome, func) => `http://localhost:${C.PROXY_PORT}/fn/${zome}/${func}`
 
 const isAppRegisteredP = (appHash: Hash) =>
   getRegisteredApps()
@@ -62,7 +62,7 @@ const userExists = (agentHash: Hash): boolean =>
 
 
 const getRegisteredApps = () => {
-  return axios.post(switchboardUrl('management', 'apps'))
+  return axios.post(switchboardUrl('management', 'apps')).catch(err => {throw new Error(err)})
 }
 
 const createUser = (identity): Promise<any> => {

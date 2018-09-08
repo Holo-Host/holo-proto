@@ -1,0 +1,13 @@
+{
+  "name": "holo-host-prototype-proxy",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node bin/server.js"
+  },
+  "devDependencies": {
+    "express": "^4.16.3",
+    "http-proxy": "^1.17.0"
+  }
+}

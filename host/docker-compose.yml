@@ -1,0 +1,14 @@
+version: "3"
+
+volumes:
+  host-home-volume:
+  agent-home-volume:
+
+services:
+  host:
+    build: .
+    volumes:
+      - ./bin:/root/bin
+      - ./build:/root/build
+      - host-home-volume:/home
+      - agent-home-volume:/agents
