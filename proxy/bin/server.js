@@ -3,7 +3,7 @@ const httpProxy = require('http-proxy')
 const path = require('path')
 
 const ROOT = path.join(__dirname, '..')
-const PROXY_PORT = 3000
+const PROXY_PORT = 4000
 const TARGET_PORT = 4000
 
 function startProxyServer() {

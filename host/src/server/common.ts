@@ -9,7 +9,7 @@ const AGENT_DIR = '/agents'
 const HOSTED_APP_NAME = 'happ'
 
 
-const PROXY_PORT = 3000
+const PROXY_PORT = 4000
 
 
 const getAgentHome = agentHash => path.join(AGENT_DIR, agentHash)
@@ -35,7 +35,7 @@ const getAgentPort = agentHash => {
 const getInstalledUsers = () => {
   // axios.post(switchboardUrl('management', 'agents'))
   let hashes: Array<any> = []
-  fs.readdir(C.AGENT_DIR, (err, hash) => {
+  fs.readdir(AGENT_DIR, (err, hash) => {
     hashes.push(hash)
   })
   return hashes
@@ -48,4 +48,5 @@ module.exports = {
   getAgentHome,
   getUserDnaHash,
   getAgentPort,
+  getInstalledUsers,
 }

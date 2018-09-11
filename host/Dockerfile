@@ -15,3 +15,9 @@ WORKDIR /root
 ADD ./package.json .
 RUN yarn install
 
+ADD ./bin bin
+RUN chmod -R a+x ./bin
+
+ADD ./hosted-happs hosted-happs
+
+CMD bin/startup

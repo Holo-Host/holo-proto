@@ -1,0 +1,14 @@
+#!/bin/bash
+
+hcadmin init "HOSTNAME(TODO)"
+hcadmin join /root/hosting-happs/switchboard switchboard
+hcd switchboard $SWITCHBOARD_PORT &
+echo "Switchboard initialized."
+
+# Temporarily "install" the sample app
+hcadmin join /root/hosted-happs/sample-app-1 sample-app-1
+echo "sample-app-1 installed."
+
+npm start
+# node build/server/index.js
+echo "Web server running..."

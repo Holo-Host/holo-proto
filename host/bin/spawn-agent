@@ -1,9 +1,24 @@
 #!/bin/bash
 
 USERNAME=$1
+APP_NAME=$2
 
-useradd $USERNAME
-cd /home/$USERNAME
+AGENT_HOME=/agents/$USERNAME
+
+useradd -m $AGENT_HOME $USERNAME
+
+cp -r /root/hosting-happs/accountant $AGENT_HOME/accountant
+
+su $USERNAME
+cd $AGENT_HOME
+
 hcadmin init $USERNAME
+hcadmin join /root/hosted-happs/$APP_NAME happ
+APP_HASH=`cat .holochain/happ/dna.hash`
+# TODO: verify app hash
 
-# TODO: join app(s) ?
+TMP=$(mktemp)
+jq '.Properties.targetDnaHash = "$APP_HASH"' ./accountant/dna.json > $TMP && mv $TMP ./accountant/dna.json
+hcadmin join ./accountant accountant
+
+# TODO: bridges, with appData

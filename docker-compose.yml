@@ -1,0 +1,20 @@
+version: "3"
+
+volumes:
+  host-home-volume:
+  agent-home-volume:
+
+services:
+  host:
+    build: ./host
+    environment:
+      - SWITCHBOARD_PORT=4000
+    ports:
+      - "4000:4000"
+      - "8000:8000"
+    volumes:
+      - ./host/bin:/root/bin
+      - ./host/build:/root/build
+      - ./host/hosted-happs:/root/hosted-happs
+      - ./host/hosting-happs/build:/root/hosting-happs
+      - agent-home-volume:/agents
