@@ -1,12 +1,14 @@
 #!/bin/bash
 
 hcadmin init "HOSTNAME(TODO)"
-hcadmin join /root/hosting-happs/switchboard switchboard
-hcd switchboard $SWITCHBOARD_PORT &
+hcadmin join /hosting-happs/switchboard switchboard
+hcd switchboard $MASTER_SWITCHBOARD_PORT &
 echo "Switchboard initialized."
 
+groupadd agents
+
 # Temporarily "install" the sample app
-hcadmin join /root/hosted-happs/sample-app-1 sample-app-1
+hcadmin join /hosted-happs/sample-app-1 sample-app-1
 echo "sample-app-1 installed."
 
 npm start

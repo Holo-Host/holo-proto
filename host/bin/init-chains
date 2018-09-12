@@ -1,0 +1,54 @@
+#!/bin/bash
+
+APPNAME=$1
+BASE_PORT=$2
+
+ACCOUNTANT_PORT=$[BASE_PORT+0]
+ACCOUNTANT_DHTPORT=$[BASE_PORT+1]
+HAPP_PORT=$[BASE_PORT+2]
+HAPP_DHTPORT=$[BASE_PORT+3]
+SWITCHBOARD_PORT=$[BASE_PORT+4]
+SWITCHBOARD_DHTPORT=$[BASE_PORT+5]
+
+HAPP_DIR=/hosted-happs/$APPNAME
+SWITCHBOARD_DIR=/hosting-happs/switchboard
+ACCOUNTANT_DIR=~/accountant
+
+USERNAME=`whoami`
+
+function joinapp {
+  echo "[init-chain] hcadmin join $2"
+  HOLOCHAINCONFIG_PORT=$3 \
+  HOLOCHAINCONFIG_DHTPORT=$4 \
+  hcadmin join $1 $2
+
+  hcd $2 $3 &
+}
+
+cd ~
+echo "[init-chain] hcadmin init"
+hcadmin init $USERNAME
+
+joinapp $HAPP_DIR happ $HAPP_PORT $HAPP_DHTPORT
+
+echo "[init-chain] get hash"
+APP_HASH=`cat .holochain/happ/dna.hash`
+# TODO: verify app hash
+
+echo "[init-chain] jq accountant"
+TMP=$(mktemp)
+jq '.Properties.targetDnaHash = "$APP_HASH"' ./accountant/dna/dna.json > $TMP && mv $TMP ./accountant/dna/dna.json
+TMP=$(mktemp)
+jq '.Properties.hostedIdentity = "$USERNAME"' ./accountant/dna/dna.json > $TMP && mv $TMP ./accountant/dna/dna.json
+
+joinapp $ACCOUNTANT_DIR accountant $ACCOUNTANT_PORT $ACCOUNTANT_DHTPORT
+joinapp $SWITCHBOARD_DIR switchboard $SWITCHBOARD_PORT $SWITCHBOARD_DHTPORT
+
+echo "[init-chain] bridging: switchboard -> accountant -> happ"
+hcadmin bridge accountant happ accountant
+hcadmin bridge switchboard accountant management --bridgeCallerAppData $APP_HASH
+
+# This is read by the web server to decide where to dispatch
+# echo $ACCOUNTANT_PORT > ~/.holo-accountant-port
+
+# TODO: bridges, with appData

@@ -1,24 +1,23 @@
 #!/bin/bash
 
+source bin/freeport.sh
+
 USERNAME=$1
-APP_NAME=$2
+APPNAME=$2
+
+if [ -z "$1" ] || [ -z "$2" ]
+then
+  echo "Must supply two args: username and appname"
+  exit 1
+fi
 
 AGENT_HOME=/agents/$USERNAME
 
-useradd -m $AGENT_HOME $USERNAME
+echo "Creating new hosted agent '$USERNAME'..."
+useradd -m -d $AGENT_HOME -G agents $USERNAME
 
-cp -r /root/hosting-happs/accountant $AGENT_HOME/accountant
+cp -r /hosting-happs/accountant $AGENT_HOME/accountant
+chown -R $USERNAME $AGENT_HOME/accountant
+cp /root/bin/init-chains $AGENT_HOME
 
-su $USERNAME
-cd $AGENT_HOME
-
-hcadmin init $USERNAME
-hcadmin join /root/hosted-happs/$APP_NAME happ
-APP_HASH=`cat .holochain/happ/dna.hash`
-# TODO: verify app hash
-
-TMP=$(mktemp)
-jq '.Properties.targetDnaHash = "$APP_HASH"' ./accountant/dna.json > $TMP && mv $TMP ./accountant/dna.json
-hcadmin join ./accountant accountant
-
-# TODO: bridges, with appData
+su -c "$AGENT_HOME/init-chains $APPNAME `freeport 4001 6`" $USERNAME

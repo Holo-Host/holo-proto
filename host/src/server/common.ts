@@ -1,5 +1,6 @@
-const fs = require('fs')
-const path = require('path')
+
+import * as fs from 'fs'
+import * as path from 'path'
 
 // Location for hosted agents' home directory (instead of /home)
 const AGENT_DIR = '/agents'
@@ -9,7 +10,7 @@ const AGENT_DIR = '/agents'
 const HOSTED_APP_NAME = 'happ'
 
 
-const PROXY_PORT = 4000
+const SWITCHBOARD_PORT = 4000
 
 
 const getAgentHome = agentHash => path.join(AGENT_DIR, agentHash)
@@ -21,15 +22,15 @@ const getUserDnaHash = agentHash => {
     HOSTED_APP_NAME,
     'dna.hash'
   )
-  return fs.readFileSync(hashFile)
+  return fs.readFileSync(hashFile, 'utf8')
 }
 
 const getAgentPort = agentHash => {
   const portFile = path.join(
     getAgentHome(agentHash),
-    '.holo-port'
+    '.holo-accountant-port'
   )
-  return parseInt(fs.readFileSync(portFile), 10)
+  return parseInt(fs.readFileSync(portFile, 'utf8'), 10)
 }
 
 const getInstalledUsers = () => {
@@ -44,7 +45,7 @@ const getInstalledUsers = () => {
 module.exports = {
   AGENT_DIR,
   HOSTED_APP_NAME,
-  PROXY_PORT,
+  SWITCHBOARD_PORT,
   getAgentHome,
   getUserDnaHash,
   getAgentPort,

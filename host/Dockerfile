@@ -9,7 +9,7 @@ RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources
 RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 
 RUN apt-get update
-RUN apt-get install -y yarn nodejs
+RUN apt-get install -y yarn nodejs jq net-tools
 
 WORKDIR /root
 ADD ./package.json .
@@ -18,6 +18,7 @@ RUN yarn install
 ADD ./bin bin
 RUN chmod -R a+x ./bin
 
-ADD ./hosted-happs hosted-happs
+ADD ./hosted-happs /hosted-happs
+RUN mkdir /agents
 
 CMD bin/startup
