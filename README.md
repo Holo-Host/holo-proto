@@ -12,6 +12,8 @@ Just have Docker installed, and:
 
     docker-compose up
 
+Oh yeah...and before you do that, run `npm install` and `npm run build` in every directory. (Will provide better instructions later!)
+
 ## Usage
 
 > NB: Here, "host machine" is used in the Docker sense, not the Holo sense. Confusingly, the host machine is the machine of the person reading this, and the containered app is the Holo host environment.
