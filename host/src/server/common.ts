@@ -28,18 +28,14 @@ const getUserDnaHash = agentHash => {
 const getAgentPort = agentHash => {
   const portFile = path.join(
     getAgentHome(agentHash),
-    '.holo-accountant-port'
+    '.holo-switchboard-port'
   )
   return parseInt(fs.readFileSync(portFile, 'utf8'), 10)
 }
 
 const getInstalledUsers = () => {
   // axios.post(switchboardUrl('management', 'agents'))
-  let hashes: Array<any> = []
-  fs.readdir(AGENT_DIR, (err, hash) => {
-    hashes.push(hash)
-  })
-  return hashes
+  return fs.readdirSync(AGENT_DIR)
 }
 
 module.exports = {

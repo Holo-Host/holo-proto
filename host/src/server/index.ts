@@ -11,15 +11,15 @@ const app = express()
 
 type Hash = string
 
-type DispatchRequest = {
-  identity: Hash,
-  appHash: Hash,
-  isSession: boolean,
+interface DispatchRequest {
+  agentHash: Hash;
+  appHash: Hash;
+  isSession: boolean;
   rpc: {
     zome: string,
     func: string,
     args: any
-  }
+  };
 }
 
 // Enable CORS
@@ -32,13 +32,28 @@ type DispatchRequest = {
 app.use(bodyParser.json())
 
 app.post('/dispatch', (req, res) => {
-  const { identity, appHash, isSession, rpc } = req.body
-  const agentHash = identity
+
+  const { agentHash, appHash, isSession, rpc } = req.body
+
+  if (!agentHash || !appHash || !rpc) {
+    res.status(400).send('missing required param(s)')
+    return
+  }
 
   const handleRequest = () => {
     const port = C.getAgentPort(agentHash)
-    const url = switchboardUrl('switchboard', 'dispatch')
-    axios.post(url).then((data) => res.json(data)).catch(err => console.error(err))
+    const url = switchboardUrl(port, 'switchboard', 'dispatch')
+    axios.post(url, rpc)
+      .then(data => res.json(data))
+      .catch(err => {
+        const { response } = err
+        console.error(response.data)
+        res.status(response.status).send(response.data)
+      })
+      .catch(err => {
+        console.error("Really bad error!! (Probably undefined response")
+        res.status(500).send(err)
+      })
   }
 
   if (isAppInstalled(appHash, res)) {
@@ -49,7 +64,7 @@ app.post('/dispatch', (req, res) => {
         handleRequest()
       }
     } else {
-      createUser(identity, appHash).then(() => handleRequest())
+      createUser(agentHash, appHash).then(() => handleRequest())
     }
   }
 
@@ -57,7 +72,7 @@ app.post('/dispatch', (req, res) => {
 
 app.listen(8000)
 
-const switchboardUrl = (zome, func) => `http://localhost:${C.SWITCHBOARD_PORT}/fn/${zome}/${func}`
+const switchboardUrl = (port, zome, func) => `http://localhost:${port}/fn/${zome}/${func}`
 
 const isAppInstalled = (appHash: Hash, res) => {
   const hashes = getInstalledApps().map(app => app.hash)
@@ -109,15 +124,15 @@ const getInstalledApps = () => {
 const getAppByHash = appHash => getInstalledApps().find(app => app.hash === appHash)
 
 const getRegisteredApps = () => {
-  return axios.post(switchboardUrl('management', 'getRegisteredApps')).catch(err => {throw new Error('getRegisteredApps: ' + err)})
+  return axios.post(switchboardUrl(C.SWITCHBOARD_PORT, 'management', 'getRegisteredApps')).catch(err => {throw new Error('getRegisteredApps: ' + err)})
 }
 
-const createUser = (identity, appHash): Promise<any> => {
+const createUser = (agentHash, appHash): Promise<any> => {
   const app = getAppByHash(appHash)
   return new Promise((fulfill, reject) => {
     if (app) {
       console.log(`spawning agent for app: ${JSON.stringify(app)}`)
-      const proc = spawn(`bin/spawn-agent`, [identity, app.name])
+      const proc = spawn(`bin/spawn-agent`, [agentHash, app.name])
       proc.stdout.on('data', data => console.log(`spawn: ${data}`))
       proc.on('exit', code => {
         if (code !== 0) {
