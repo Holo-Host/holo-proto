@@ -1,3 +1,14 @@
+#/bin/bash
+
+function info {
+  echo "[init-chain] $1"
+}
+
+function joinapp {
+  info "hcadmin join $2"
+  HOLOCHAINCONFIG_DHTPORT=$3 \
+  hcadmin join $1 $2
+}
 
 function freeport {
   # Find a port such that it and the next N consecutive ports are all free

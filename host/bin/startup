@@ -1,8 +1,20 @@
 #!/bin/bash
 
+cd ~
+
 hcadmin init "HOSTNAME(TODO)"
 if [ $? -ne 0 ] ; then
   echo "Already initialized..."
+  echo `find /agents -maxdepth 1 -mindepth 1 -type d | sed -r 's/\/agents\///'`
+  for username in `find /agents -maxdepth 1 -mindepth 1 -type d | sed -r 's/\/agents\///'`
+  do
+    if [ -z "$username" ]; then
+      echo "Got a blank username during 'startup'!"
+      exit 1
+    fi
+    echo "Starting chains for '$username'..."
+    su -c "/bin-holo/run-chains" $username
+  done
 else
   groupadd agents
 

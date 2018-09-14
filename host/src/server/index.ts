@@ -43,15 +43,19 @@ app.post('/dispatch', (req, res) => {
   const handleRequest = () => {
     const port = C.getAgentPort(agentHash)
     const url = switchboardUrl(port, 'switchboard', 'dispatch')
+    console.log(`Calling ${url}:${port}`)
     axios.post(url, rpc)
       .then(data => res.json(data))
       .catch(err => {
         const { response } = err
+        if (!response) {
+          // console.error("Full error: ", err)
+        }
         console.error(response.data)
         res.status(response.status).send(response.data)
       })
       .catch(err => {
-        console.error("Really bad error!! (Probably undefined response")
+        console.error("Really bad error!! (Probably undefined response): ", err)
         res.status(500).send(err)
       })
   }
@@ -132,7 +136,7 @@ const createUser = (agentHash, appHash): Promise<any> => {
   return new Promise((fulfill, reject) => {
     if (app) {
       console.log(`spawning agent for app: ${JSON.stringify(app)}`)
-      const proc = spawn(`bin/spawn-agent`, [agentHash, app.name])
+      const proc = spawn(`/bin-holo/spawn-agent`, [agentHash, app.name])
       proc.stdout.on('data', data => console.log(`spawn: ${data}`))
       proc.on('exit', code => {
         if (code !== 0) {

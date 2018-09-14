@@ -10,10 +10,9 @@ services:
     environment:
       - MASTER_SWITCHBOARD_PORT=4000
     ports:
-      - "4000:4000"
       - "8000:8000"
     volumes:
-      - ./host/bin:/root/bin
+      - ./host/bin:/bin-holo
       - ./host/build:/root/build
       - ./host/hosted-happs:/hosted-happs
       - ./host/hosting-happs/build:/hosting-happs

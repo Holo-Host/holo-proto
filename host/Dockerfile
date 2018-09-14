@@ -15,10 +15,11 @@ WORKDIR /root
 ADD ./package.json .
 RUN yarn install
 
-ADD ./bin bin
-RUN chmod -R a+x ./bin
+ADD ./bin /bin-holo
+RUN chmod -R a+x /bin-holo
+RUN ln -s /bin-holo ./bin
 
 ADD ./hosted-happs /hosted-happs
 RUN mkdir /agents
 
-CMD bin/startup
+CMD /bin-holo/startup

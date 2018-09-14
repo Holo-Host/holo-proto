@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source bin/freeport.sh
+source /bin-holo/functions.sh
 
 USERNAME=$1
 APPNAME=$2
@@ -18,6 +18,5 @@ useradd -m -d $AGENT_HOME -G agents $USERNAME
 
 cp -r /hosting-happs/accountant $AGENT_HOME/accountant
 chown -R $USERNAME $AGENT_HOME/accountant
-cp /root/bin/init-chains $AGENT_HOME
 
-su -c "$AGENT_HOME/init-chains $APPNAME `freeport 4001 6`" $USERNAME
+su -c "/bin-holo/init-chains $APPNAME `freeport 4001 6`" $USERNAME

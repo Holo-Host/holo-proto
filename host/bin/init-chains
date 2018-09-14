@@ -1,14 +1,16 @@
 #!/bin/bash
 
+source /bin-holo/functions.sh
+
 APPNAME=$1
 BASE_PORT=$2
 
-ACCOUNTANT_PORT=$[BASE_PORT+0]
-ACCOUNTANT_DHTPORT=$[BASE_PORT+1]
-HAPP_PORT=$[BASE_PORT+2]
-HAPP_DHTPORT=$[BASE_PORT+3]
-SWITCHBOARD_PORT=$[BASE_PORT+4]
-SWITCHBOARD_DHTPORT=$[BASE_PORT+5]
+SWITCHBOARD_PORT=$[BASE_PORT+0]
+SWITCHBOARD_DHTPORT=$[BASE_PORT+1]
+ACCOUNTANT_PORT=$[BASE_PORT+2]
+ACCOUNTANT_DHTPORT=$[BASE_PORT+3]
+HAPP_PORT=$[BASE_PORT+4]
+HAPP_DHTPORT=$[BASE_PORT+5]
 
 HAPP_DIR=/hosted-happs/$APPNAME
 SWITCHBOARD_DIR=/hosting-happs/switchboard
@@ -16,17 +18,18 @@ ACCOUNTANT_DIR=~/accountant
 
 USERNAME=`whoami`
 
-function info {
-  echo "[init-chain] $1"
-}
-
-function joinapp {
-  info "hcadmin join $2"
-  HOLOCHAINCONFIG_DHTPORT=$3 \
-  hcadmin join $1 $2
-}
-
 cd ~
+
+
+# function info {
+#   echo "[init-chain] $1"
+# }
+
+# function joinapp {
+#   info "hcadmin join $2"
+#   HOLOCHAINCONFIG_DHTPORT=$3 \
+#   hcadmin join $1 $2
+# }
 
 info "hcadmin init"
 hcadmin init $USERNAME
@@ -50,13 +53,13 @@ info "bridging: switchboard -> accountant -> happ"
 hcadmin bridge accountant happ accountant
 hcadmin bridge switchboard accountant management --bridgeCallerAppData $APP_HASH
 
+# This is read by the web server to decide where to dispatch
+echo $SWITCHBOARD_PORT > ~/.holo-switchboard-port
+echo $ACCOUNTANT_PORT > ~/.holo-accountant-port
+
 info "starting services (three will come online asyncrhonously)"
 hcd --debug happ $HAPP_PORT &
 hcd --debug accountant $ACCOUNTANT_PORT &
 hcd --debug switchboard $SWITCHBOARD_PORT &
-
-# This is read by the web server to decide where to dispatch
-echo $SWITCHBOARD_PORT > ~/.holo-switchboard-port
-echo $ACCOUNTANT_PORT > ~/.holo-accountant-port
 
 # TODO: bridges, with appData
