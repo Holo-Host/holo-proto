@@ -6,10 +6,13 @@ volumes:
 
 services:
   host:
-    build: ./host
+    build:
+      context: ./host
+      dockerfile: Dockerfile-prod
     environment:
       - MASTER_SWITCHBOARD_PORT=4000
     ports:
       - "8000:8000"
-    volumes:
-      - agent-home-volume:/agents
+    # volumes:
+    #   - agent-home-volume:/agents
+    #   - host-home-volume:/root

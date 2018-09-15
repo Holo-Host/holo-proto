@@ -49,7 +49,7 @@ app.post('/dispatch', (req, res) => {
       .catch(err => {
         const { response } = err
         if (!response) {
-          // console.error("Full error: ", err)
+          console.error("uh oh, undefined response!")
         }
         console.error(response.data)
         res.status(response.status).send(response.data)
@@ -62,12 +62,14 @@ app.post('/dispatch', (req, res) => {
 
   if (isAppInstalled(appHash, res)) {
     if (userExists(agentHash)) {
+      console.log('user exists...')
       if (appHash !== C.getUserDnaHash(agentHash)) {
         throw new Error(`App hash does not match installed user app: ${appHash}`)
       } else {
         handleRequest()
       }
     } else {
+      console.log('ready to create user...')
       createUser(agentHash, appHash).then(() => handleRequest())
     }
   }

@@ -13,13 +13,26 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 RUN apt-get update
 RUN apt-get install -y yarn nodejs jq net-tools
 
-
-### MAKE SURE EVERYTHING ABOVE THIS LINE IS IN SYNC WITH Dockerfile-prod ###
-
+### MAKE SURE EVERYTHING ABOVE THIS LINE IS IN SYNC WITH Dockerfile ###
 
 WORKDIR /root
 
+
+# build webserver
+ADD ./webserver ./webserver
+RUN cd webserver && yarn install && npm run build && cd -
+
+# build hosting apps
+ADD ./hosting-happs /hosting-happs
+RUN cd /hosting-happs && yarn install && npm run build && cd -
+
+# build hosted apps
+ADD ./hosted-happs /hosted-happs
+RUN cd /hosted-happs/sample-app-1 && yarn install && cd -
+
 # set up scripts & directory structure
+ADD ./bin /bin-holo
+RUN chmod -R a+x /bin-holo
 RUN ln -s /bin-holo ./bin
 RUN mkdir /agents
 

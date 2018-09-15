@@ -35,14 +35,19 @@ For iterating on the code, your final docker-compose command will be different, 
 You'll want to run watch scripts for the host server:
 
     cd ./host
+    yarn install  # first time only
     npm run watch
 
 And for the hosting apps (switchboard and accountant)
 
     cd ./host/hosting-happs
+    yarn install  # first time only
     npm run watch
 
-(The current sample app is pure JS and has no build system.)
+The current sample app is vanilla JS and has no build system, but does have npm dependencies, so go install them too:
+
+    cd ./host/hosted-happs/sample-app-1
+    yarn install  # first time only
 
 Then, to spin up the containers, run the following (note the difference from the "production" command):
 

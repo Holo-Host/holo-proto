@@ -5,9 +5,11 @@ version: "3"
 
 services:
   host:
+    build:
+      context: ./host
+      dockerfile: Dockerfile
     volumes:
       - ./host/bin:/bin-holo
-      - ./host/build:/root/build  # be sure to `npm run watch` to get build updates
+      - ./host/webserver:/root/webserver  # be sure to `npm run watch` to get build updates
+      - ./host/hosting-happs:/hosting-happs  # be sure to `npm run watch` to get build updates
       - ./host/hosted-happs:/hosted-happs
-      - ./host/hosting-happs/build:/hosting-happs
-      # - agent-home-volume:/agents

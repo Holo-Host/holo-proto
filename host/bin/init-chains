@@ -13,7 +13,7 @@ HAPP_PORT=$[BASE_PORT+4]
 HAPP_DHTPORT=$[BASE_PORT+5]
 
 HAPP_DIR=/hosted-happs/$APPNAME
-SWITCHBOARD_DIR=/hosting-happs/switchboard
+SWITCHBOARD_DIR=/hosting-happs/build/switchboard
 ACCOUNTANT_DIR=~/accountant
 
 USERNAME=`whoami`

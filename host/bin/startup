@@ -18,7 +18,7 @@ if [ $? -ne 0 ] ; then
 else
   groupadd agents
 
-  hcadmin join /hosting-happs/switchboard switchboard
+  hcadmin join /hosting-happs/build/switchboard switchboard
   echo "Switchboard initialized."
 
   # Temporarily "install" the sample app
@@ -27,6 +27,6 @@ else
 fi
 
 hcd --debug switchboard $MASTER_SWITCHBOARD_PORT &
-npm start
-# node build/server/index.js
+cd webserver && npm start
+# node webserver/build/index.js
 echo "Web server running..."
