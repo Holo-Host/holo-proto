@@ -12,8 +12,4 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./host/bin:/bin-holo
-      - ./host/build:/root/build
-      - ./host/hosted-happs:/hosted-happs
-      - ./host/hosting-happs/build:/hosting-happs
-      # - agent-home-volume:/agents
+      - agent-home-volume:/agents

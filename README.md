@@ -8,11 +8,47 @@ A collection of all interrelated Holo code bases glued together with docker-comp
 
 ## Installation
 
-Just have Docker installed, and:
+First grab the submodules with:
+
+    git submodule init && git submodule update
+
+Have Docker installed. Then build the containers with:
+
+    docker-compose build
+
+Now decide if you want to run in development mode for iterating on the code, or just bake a "production-ready" assortment of containers with everything baked in.
+
+### "Production-ready" build
+
+After you've built the containers, simply invoke:
+
+    docker-compose -f docker-compose.yml up
+
+And all services will spin up. Eventually a web server will be available at http://localhost:8000
+
+### Development mode
+
+For iterating on the code, your final docker-compose command will be different, and you'll have to run some watch scripts to compile your TypeScript on the fly. Additionally, you might choose to only run one containered service at a time.
+
+#### Host service
+
+You'll want to run watch scripts for the host server:
+
+    cd ./host
+    npm run watch
+
+And for the hosting apps (switchboard and accountant)
+
+    cd ./host/hosting-happs
+    npm run watch
+
+(The current sample app is pure JS and has no build system.)
+
+Then, to spin up the containers, run the following (note the difference from the "production" command):
 
     docker-compose up
 
-Oh yeah...and before you do that, run `npm install` and `npm run build` in every directory. (Will provide better instructions later!)
+By omitting the -f flag, docker-compose also loads `docker-compose.override.yml`, which contains extra configuration to map your local code into the containers for fast code editing.
 
 ## Usage
 

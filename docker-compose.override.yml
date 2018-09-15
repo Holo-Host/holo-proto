@@ -1,0 +1,13 @@
+# Dev settings, mainly mapping local volumes for fast code updates
+# Make sure to `npm run watch` on host machine to get builds
+
+version: "3"
+
+services:
+  host:
+    volumes:
+      - ./host/bin:/bin-holo
+      - ./host/build:/root/build  # be sure to `npm run watch` to get build updates
+      - ./host/hosted-happs:/hosted-happs
+      - ./host/hosting-happs/build:/hosting-happs
+      # - agent-home-volume:/agents
