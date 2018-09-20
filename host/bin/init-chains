@@ -35,6 +35,7 @@ info "hcadmin init"
 hcadmin init $USERNAME
 
 joinapp $HAPP_DIR happ $HAPP_DHTPORT
+joinapp $SWITCHBOARD_DIR switchboard $SWITCHBOARD_DHTPORT
 
 info "get hash"
 APP_HASH=`cat .holochain/happ/dna.hash`
@@ -47,7 +48,6 @@ TMP=$(mktemp)
 jq '.Properties.hostedIdentity = "$USERNAME"' ./accountant/dna/dna.json > $TMP && mv $TMP ./accountant/dna/dna.json
 
 joinapp $ACCOUNTANT_DIR accountant $ACCOUNTANT_DHTPORT
-joinapp $SWITCHBOARD_DIR switchboard $SWITCHBOARD_DHTPORT
 
 info "bridging: switchboard -> accountant -> happ"
 hcadmin bridge accountant happ accountant
