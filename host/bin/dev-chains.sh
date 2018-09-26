@@ -1,20 +1,22 @@
-source bin/functions.sh
+# source bin/functions.sh
 
-SUFF=$1
-switchboard=hh-switchboard-$SUFF
-accountant=hh-accountant-$SUFF
-happ=hh-happ-$SUFF
+# SUFF=$1
+# accountant=$1
+accountant=accountant
 
-joinapp hosted-happs/sample-app-1 $happ 4006
-joinapp hosting-happs/build/accountant $accountant 4004
-joinapp hosting-happs/build/switchboard $switchboard 4002
+ACCOUNTANT_PORT=4003
 
-APP_HASH=`cat ~/.holochain/$happ/dna.hash`
-echo "got happ hash: $APP_HASH"
-
-hcadmin --verbose bridge $accountant $happ accountant
-hcadmin --verbose bridge $switchboard $accountant management --bridgeCallerAppData $APP_HASH
-
-hcd --debug $switchboard 4001 &
-hcd --debug $accountant 4003 &
-hcd --debug $happ 4005 &
+TMP=$(mktemp -t holo-prototype)
+mv $TMP ${TMP}.json
+TMP=${TMP}.json
+DNA_HASH='QmbZeFchQ3gtc1ZUUpZSSsznZDjyeq1dJMBq12hCohpygH'
+# DNA_HASH='TODO'
+jq '.[0].BridgeGenesisCallerData = "$DNA_HASH"' $accountant/bridge_specs.json > $TMP
+# cat $accountant/bridge_specs.json > $TMP
+echo $TMP
+# echo "before..."
+# echo `cat $accountant/bridge_specs.json`
+# echo "after..."
+echo `cat $TMP`
+cd $accountant
+hcdev -bridgeSpecs $TMP web $ACCOUNTANT_PORT

@@ -4,19 +4,23 @@ source /bin-holo/functions.sh
 
 USERNAME=$1
 APPNAME=$2
+DNA_HASH=$3
 
 if [ -z "$1" ] || [ -z "$2" ]
 then
-  echo "Must supply two args: username and appname"
+  echo "Must supply two args: USERNAME and APPNAME"
   exit 1
 fi
 
 AGENT_HOME=/agents/$USERNAME
 
-echo "Creating new hosted agent '$USERNAME'..."
+# DNA_HASH=`cat .holochain/$APPNAME/dna.hash`
+echo "Read DNA hash: $DNA_HASH"
+
+echo "Creating new hosted agent '$USERNAME' with app '$APPNAME'"
 useradd -m -d $AGENT_HOME -G agents $USERNAME
 
 cp -r /hosting-happs/build/accountant $AGENT_HOME/accountant
 chown -R $USERNAME $AGENT_HOME/accountant
 
-su -c "/bin-holo/init-chains $APPNAME `freeport 4001 6`" $USERNAME
+su -c "/bin-holo/init-chains-hcdev $DNA_HASH $APPNAME `freeport 4001 6`" $USERNAME

@@ -22,7 +22,7 @@ const getUserDnaHash = agentHash => {
     HOSTED_APP_NAME,
     'dna.hash'
   )
-  return fs.readFileSync(hashFile, 'utf8')
+  return fs.readFileSync(hashFile, 'utf8').trim()
 }
 
 const getAgentPort = agentHash => {

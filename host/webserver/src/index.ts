@@ -29,6 +29,7 @@ interface DispatchRequest {
 //   next();
 // })
 
+app.use(bodyParser.text())
 app.use(bodyParser.json())
 
 app.post('/dispatch', (req, res) => {
@@ -45,14 +46,18 @@ app.post('/dispatch', (req, res) => {
     const url = switchboardUrl(port, 'switchboard', 'dispatch')
     console.log(`Calling ${url}:${port}`)
     axios.post(url, rpc)
-      .then(data => res.json(data))
+      .then(payload => {
+        res.status(payload.status).json(payload.data)
+      })
       .catch(err => {
-        const { response } = err
-        if (!response) {
-          console.error("uh oh, undefined response!")
+        const { request, response } = err
+        if (response) {
+          console.log(response.data)
+          res.status(response.status).send(response.data)
+        } else {
+          const msg = "RPC failed: " + err.message + ". Is the service running?"
+          res.status(500).send(msg)
         }
-        console.error(response.data)
-        res.status(response.status).send(response.data)
       })
       .catch(err => {
         console.error("Really bad error!! (Probably undefined response): ", err)
@@ -63,8 +68,9 @@ app.post('/dispatch', (req, res) => {
   if (isAppInstalled(appHash, res)) {
     if (userExists(agentHash)) {
       console.log('user exists...')
-      if (appHash !== C.getUserDnaHash(agentHash)) {
-        throw new Error(`App hash does not match installed user app: ${appHash}`)
+      const foundHash = C.getUserDnaHash(agentHash)
+      if (appHash !== foundHash) {
+        throw new Error(`App hash does not match installed user app: '${appHash}' vs. '${foundHash}'`)
       } else {
         handleRequest()
       }
@@ -138,11 +144,12 @@ const createUser = (agentHash, appHash): Promise<any> => {
   return new Promise((fulfill, reject) => {
     if (app) {
       console.log(`spawning agent for app: ${JSON.stringify(app)}`)
-      const proc = spawn(`/bin-holo/spawn-agent`, [agentHash, app.name])
+      const proc = spawn(`/bin-holo/spawn-agent`, [agentHash, app.name, app.hash])
       proc.stdout.on('data', data => console.log(`spawn: ${data}`))
+      proc.stderr.on('data', data => console.error(`spawn (err): ${data}`))
       proc.on('exit', code => {
         if (code !== 0) {
-          reject(`Could not spawn new agent`)
+          reject(`Could not spawn new agent. Code: ${code}`)
         } else {
           fulfill()
         }
