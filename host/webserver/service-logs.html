@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>holo host admin</title>
+</head>
+<body>
+  <h1>holo host admin</h1>
+  <h2>installed hApps:</h2>
+  <pre><ul id="happ-list"></ul></pre>
+  <h2>service logs</h2>
+  <a href="/admin/logs">view all service logs for all apps</a>
+
+  <script type="text/javascript">
+    window.addEventListener('load', () => {
+      console.log('load')
+      const ul = document.querySelector('#happ-list')
+      fetch('/api/happs').then(r => r.json()).then(happs => {
+        const lis = happs.map(({name, hash}) => `<li>${hash} : ${name}</li>`)
+        ul.innerHTML = lis.join('')
+      })
+    })
+  </script>
+</body>
+</html>
