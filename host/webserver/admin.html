@@ -13,7 +13,7 @@
   <ul id="hosted-happs"></ul>
 
   <h2>service logs</h2>
-  <a href="/admin/logs">view all service logs for all apps</a>
+  <div id="service-logs"></div>
 
   <script type="text/javascript">
     window.addEventListener('load', () => {
@@ -30,6 +30,7 @@
           <li>${ displayApp(hash, name) }</li>
         `)
         ul.innerHTML = lis.join('')
+        addServiceLogs(happs)
       })
     }
 
@@ -42,6 +43,68 @@
         ul.innerHTML = lis.join('')
       })
     }
+
+    const addServiceLogs = (happs) => {
+      const div = document.querySelector('#service-logs')
+      const promises = happs.map(happ => {
+        return fetch(`/api/happs/${happ.hash}/service-logs`)
+               .then(r => r.json())
+      })
+      Promise.all(promises).then(reports => {
+        const items = reports.map((report, i) => {
+          const happ = happs[i]
+          const blocks = report.map(items => {
+            const {agentHash, bundle} = items
+            let rows = ''
+            if (bundle.error) {
+              rows = `
+                <tr>
+                  <td class="error" colspan="2">${bundle.error}</td>
+                </tr>
+              `
+            } else {
+              rows = bundle.map(serviceLog => `
+                <tr>
+                  <td><i>TODO</i></td>
+                  <td>${ JSON.stringify(serviceLog.metrics) }</td>
+                </tr>
+              `)
+            }
+            return `
+              <tr><th colspan="3">${ agentHash }</th></tr>
+              ${ rows }
+            `
+          })
+          return `
+            <h3>${ happ.name }</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Metrics</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${ blocks }
+              </tbody>
+            </table>
+          `
+        })
+        div.innerHTML = items.join('\n')
+      })
+    }
   </script>
+
+  <style type="text/css">
+    td, th {
+      border-collapse: collapse;
+      padding: 5px;
+      margin: 0;
+      border: 1px dotted black;
+    }
+    .error {
+      background: #faa;
+    }
+  </style>
 </body>
 </html>

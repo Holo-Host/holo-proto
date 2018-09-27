@@ -18,5 +18,6 @@ app.post('/dispatch', dispatch)
 app.get('/', admin)
 app.get('/api/happs/registered', api.happs.registered)
 app.get('/api/happs/hosted', api.happs.hosted)
+app.get('/api/happs/:dnaHash/service-logs', api.happs.serviceLogs)
 
 app.listen(8000)

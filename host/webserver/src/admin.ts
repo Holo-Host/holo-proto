@@ -4,6 +4,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 
 const C = require('./common')
+import {buildReport} from './service-logs'
 
 
 export default (req, res) => {
@@ -17,6 +18,12 @@ export const api = {
     },
     hosted: (req, res) => {
       res.json(C.getHostedApps())
+    },
+    serviceLogs: (req, res) => {
+      const { dnaHash } = req.params
+      buildReport(dnaHash).then(report => {
+        res.json(report)
+      })
     }
   }
 }
