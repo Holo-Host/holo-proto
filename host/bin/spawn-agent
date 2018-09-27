@@ -23,4 +23,4 @@ useradd -m -d $AGENT_HOME -G agents $USERNAME
 cp -r /hosting-happs/build/accountant $AGENT_HOME/accountant
 chown -R $USERNAME $AGENT_HOME/accountant
 
-su -c "/bin-holo/init-chains-hcdev $DNA_HASH $APPNAME `freeport 4001 6`" $USERNAME
+su -c "/bin-holo/init-chains-hcdev $DNA_HASH $APPNAME `freeport 4000 4`" $USERNAME

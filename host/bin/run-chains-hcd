@@ -4,7 +4,7 @@ source /bin-holo/functions.sh
 
 cd ~
 
-BASE_PORT=`cat .holo-switchboard-port`
+BASE_PORT=`cat .holo-accountant-port`
 if [ -z $BASE_PORT]; then
   echo "Can't read port file! Giving up..."
   exit 1

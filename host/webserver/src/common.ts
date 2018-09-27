@@ -10,9 +10,6 @@ const AGENT_DIR = '/agents'
 const HOSTED_APP_NAME = 'happ'
 
 
-const SWITCHBOARD_PORT = 4000
-
-
 const getAgentHome = agentHash => path.join(AGENT_DIR, agentHash)
 
 const getUserDnaHash = agentHash => {
@@ -25,25 +22,23 @@ const getUserDnaHash = agentHash => {
   return fs.readFileSync(hashFile, 'utf8').trim()
 }
 
-const getAgentPort = agentHash => {
+const getAccountantPort = agentHash => {
   const portFile = path.join(
     getAgentHome(agentHash),
-    '.holo-switchboard-port'
+    '.holo-accountant-port'
   )
   return parseInt(fs.readFileSync(portFile, 'utf8'), 10)
 }
 
 const getInstalledUsers = () => {
-  // axios.post(switchboardUrl('management', 'agents'))
   return fs.readdirSync(AGENT_DIR)
 }
 
 module.exports = {
   AGENT_DIR,
   HOSTED_APP_NAME,
-  SWITCHBOARD_PORT,
   getAgentHome,
   getUserDnaHash,
-  getAgentPort,
+  getAccountantPort,
   getInstalledUsers,
 }

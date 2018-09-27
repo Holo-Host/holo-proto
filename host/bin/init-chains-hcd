@@ -43,7 +43,7 @@ hcadmin bridge accountant happ accountant
 hcadmin bridge switchboard accountant management --bridgeCallerAppData $APP_HASH
 
 # This is read by the web server to decide where to dispatch
-echo $SWITCHBOARD_PORT > ~/.holo-switchboard-port
+echo $SWITCHBOARD_PORT > ~/.holo-accountant-port
 
 info "starting services (three will come online asyncrhonously)"
 hcd --debug happ $HAPP_PORT &

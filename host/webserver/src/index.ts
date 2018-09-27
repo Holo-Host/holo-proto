@@ -42,8 +42,8 @@ app.post('/dispatch', (req, res) => {
   }
 
   const handleRequest = () => {
-    const port = C.getAgentPort(agentHash)
-    const url = switchboardUrl(port, 'switchboard', 'dispatch')
+    const port = C.getAccountantPort(agentHash)
+    const url = `http://localhost:${port}/fn/accountant/handleRequest`
     console.log(`Calling ${url}:${port}`)
     axios.post(url, rpc)
       .then(payload => {
@@ -84,8 +84,6 @@ app.post('/dispatch', (req, res) => {
 
 app.listen(8000)
 
-const switchboardUrl = (port, zome, func) => `http://localhost:${port}/fn/${zome}/${func}`
-
 const isAppInstalled = (dnaHash: Hash, res) => {
   const hashes = getInstalledApps().map(app => app.hash)
   const found = hashes.find(hash => hash === dnaHash) !== undefined
@@ -101,22 +99,6 @@ ${hashesDisplay}`
   return true
 }
 
-const isAppRegisteredP = (dnaHash: Hash) =>
-  getRegisteredApps()
-    .then(entries => {
-      const hashes = entries.data.map(app => app.dnaHash)
-      const app = hashes.find(hash => dnaHash === hash)
-      if (!app) {
-        const hashesDisplay = hashes.map(h => `- ${h}`).join("\n")
-        throw new Error(
-`App DNA is not registered with this host: ${dnaHash}.
-${hashes.length} Available hashes:
-${hashesDisplay}`
-        )
-      }
-      return app
-    })
-
 const userExists = (agentHash: Hash): boolean =>
   C.getInstalledUsers().find(hash => agentHash === hash) !== undefined
 
@@ -124,7 +106,8 @@ const getInstalledApps = () => {
   const base = '/root/.holochain'
   // @ts-ignore: needs 10.10.0^ types for withFileTypes
   const items = fs.readdirSync('/root/.holochain', {withFileTypes: true})
-  const dirs = items.filter(item => item.isDirectory() && item.name !== 'switchboard')
+  // NB: if ever installing other hApps in host-space, ignore them here
+  const dirs = items.filter(item => item.isDirectory())
   return dirs.map((item) => {
     const { name } = item
     const appDir = path.join(base, name, 'dna.hash')
@@ -134,10 +117,6 @@ const getInstalledApps = () => {
 }
 
 const getAppByHash = dnaHash => getInstalledApps().find(app => app.hash === dnaHash)
-
-const getRegisteredApps = () => {
-  return axios.post(switchboardUrl(C.SWITCHBOARD_PORT, 'management', 'getRegisteredApps')).catch(err => {throw new Error('getRegisteredApps: ' + err)})
-}
 
 const createUser = (agentHash, dnaHash): Promise<any> => {
   const app = getAppByHash(dnaHash)

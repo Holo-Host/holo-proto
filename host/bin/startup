@@ -16,13 +16,13 @@ if [ $? -ne 0 ] ; then
       exit 1
     fi
     echo "Starting chains for '$username'..."
-    su -c "/bin-holo/run-chains" $username
+    su -c "/bin-holo/run-chains-hcdev" $username
   done
 else
   groupadd agents
 
-  hcadmin join /hosting-happs/build/switchboard switchboard
-  echo "Switchboard initialized."
+  # hcadmin join /hosting-happs/build/switchboard switchboard
+  # echo "Switchboard initialized."
 
   # "install" some apps
   install-app sample-app-1
@@ -30,7 +30,7 @@ else
   install-app clutter
 fi
 
-hcd --debug switchboard $MASTER_SWITCHBOARD_PORT &
+# hcd --debug switchboard $MASTER_SWITCHBOARD_PORT &
 cd webserver && npm start
 # node webserver/build/index.js
 echo "Web server running..."

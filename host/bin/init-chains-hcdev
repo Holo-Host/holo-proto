@@ -6,15 +6,12 @@ DNA_HASH=$1
 APPNAME=$2
 BASE_PORT=$3
 
-SWITCHBOARD_PORT=$[BASE_PORT+0]
-SWITCHBOARD_DHTPORT=$[BASE_PORT+1]
-ACCOUNTANT_PORT=$[BASE_PORT+2]
-ACCOUNTANT_DHTPORT=$[BASE_PORT+3]
-HAPP_PORT=$[BASE_PORT+4]
-HAPP_DHTPORT=$[BASE_PORT+5]
+ACCOUNTANT_PORT=$[BASE_PORT+0]
+ACCOUNTANT_DHTPORT=$[BASE_PORT+1]
+HAPP_PORT=$[BASE_PORT+2]
+HAPP_DHTPORT=$[BASE_PORT+3]  # unused with hcdev
 
 HAPP_DIR=/hosted-happs/$APPNAME
-SWITCHBOARD_DIR=/hosting-happs/build/switchboard
 ACCOUNTANT_DIR=~/accountant
 
 USERNAME=`whoami`
@@ -35,20 +32,16 @@ jq ".Properties.hostedDnaHash = \"$DNA_HASH\" | .Properties.hostedIdentity = \"$
 info "jq rewrite accountant bridge_specs.json"
 TMP=$(mktemp)
 cat ./accountant/bridge_specs.json | \
-jq ".[0].BridgeGenesisCallerData = \"$DNA_HASH\"" \
-| jq ".[0].Foooo = \"Fooooo\"" \
-| jq ".[0].Path = \"$SWITCHBOARD_DIR\"" \
-| jq ".[0].Port = \"$SWITCHBOARD_PORT\"" \
-| jq ".[1].Path = \"$HAPP_DIR\"" \
-| jq ".[1].Port = \"$HAPP_PORT\"" \
+jq ".[0].Path = \"$HAPP_DIR\"" \
+| jq ".[0].Port = \"$HAPP_PORT\"" \
 > $TMP && mv $TMP ./accountant/bridge_specs.json
 
 # This is read by the web server to decide where to dispatch
-echo $SWITCHBOARD_PORT > ~/.holo-switchboard-port
+echo $ACCOUNTANT_PORT > ~/.holo-accountant-port
 
 info "starting service (will come online asyncrhonously)"
 cd $ACCOUNTANT_DIR
 
-HOLOCHAINCONFIG_DHTPORT=$SWITCHBOARD_DHTPORT \
+HOLOCHAINCONFIG_DHTPORT=$ACCOUNTANT_DHTPORT \
 hcdev web $ACCOUNTANT_PORT
 
