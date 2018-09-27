@@ -20,22 +20,11 @@ USERNAME=`whoami`
 
 cd ~
 
-
-# function info {
-#   echo "[init-chain] $1"
-# }
-
-# function joinapp {
-#   info "hcadmin join $2"
-#   HOLOCHAINCONFIG_DHTPORT=$3 \
-#   hcadmin join $1 $2
-# }
-
 info "hcadmin init"
 hcadmin init $USERNAME
 
-joinapp $HAPP_DIR happ $HAPP_DHTPORT
-joinapp $SWITCHBOARD_DIR switchboard $SWITCHBOARD_DHTPORT
+join-app $HAPP_DIR happ $HAPP_DHTPORT
+join-app $SWITCHBOARD_DIR switchboard $SWITCHBOARD_DHTPORT
 
 info "get hash"
 APP_HASH=`cat .holochain/happ/dna.hash`
@@ -43,11 +32,11 @@ APP_HASH=`cat .holochain/happ/dna.hash`
 
 info "jq accountant"
 TMP=$(mktemp)
-jq '.Properties.targetDnaHash = "$APP_HASH"' ./accountant/dna/dna.json > $TMP && mv $TMP ./accountant/dna/dna.json
+jq '.Properties.hostedDnaHash = "$APP_HASH"' ./accountant/dna/dna.json > $TMP && mv $TMP ./accountant/dna/dna.json
 TMP=$(mktemp)
 jq '.Properties.hostedIdentity = "$USERNAME"' ./accountant/dna/dna.json > $TMP && mv $TMP ./accountant/dna/dna.json
 
-joinapp $ACCOUNTANT_DIR accountant $ACCOUNTANT_DHTPORT
+join-app $ACCOUNTANT_DIR accountant $ACCOUNTANT_DHTPORT
 
 info "bridging: switchboard -> accountant -> happ"
 hcadmin bridge accountant happ accountant
@@ -55,11 +44,8 @@ hcadmin bridge switchboard accountant management --bridgeCallerAppData $APP_HASH
 
 # This is read by the web server to decide where to dispatch
 echo $SWITCHBOARD_PORT > ~/.holo-switchboard-port
-# echo $ACCOUNTANT_PORT > ~/.holo-accountant-port
 
 info "starting services (three will come online asyncrhonously)"
 hcd --debug happ $HAPP_PORT &
 hcd --debug accountant $ACCOUNTANT_PORT &
 hcd --debug switchboard $SWITCHBOARD_PORT &
-
-# TODO: bridges, with appData

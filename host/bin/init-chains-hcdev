@@ -21,22 +21,15 @@ USERNAME=`whoami`
 
 cd ~
 
-# /bin-holo/dev-chains.sh hosting-happs/build/accountant $ACCOUNTANT_PORT
-
 # this hack exists to make it a little easier to switch back to using hcd
 # if `hcadmin bridge` ever works, since the dna.hash will be in this location
 echo "making hacky fake dna for $DNA_HASH"
 mkdir -p .holochain/happ
 echo $DNA_HASH > .holochain/happ/dna.hash
 
-# info "hcadmin init"
-# hcadmin init $USERNAME
-
-# joinapp $HAPP_DIR happ $HAPP_DHTPORT
-
 info "jq rewrite accountant dna.json"
 TMP=$(mktemp)
-jq ".Properties.targetDnaHash = \"$DNA_HASH\" | .Properties.hostedIdentity = \"$USERNAME\"" \
+jq ".Properties.hostedDnaHash = \"$DNA_HASH\" | .Properties.hostedIdentity = \"$USERNAME\"" \
    ./accountant/dna/dna.json > $TMP && mv $TMP ./accountant/dna/dna.json
 
 info "jq rewrite accountant bridge_specs.json"

@@ -8,7 +8,7 @@ DNA_HASH=$3
 
 if [ -z "$1" ] || [ -z "$2" ]
 then
-  echo "Must supply two args: USERNAME and APPNAME"
+  echo "Must supply three args: USERNAME, APPNAME, and DNA_HASH"
   exit 1
 fi
 

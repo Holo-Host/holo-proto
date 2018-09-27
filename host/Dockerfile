@@ -12,7 +12,7 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 
 RUN apt-get update
 RUN apt-get install -y yarn nodejs jq net-tools
-RUN apt-get install -y less procps
+RUN apt-get install -y less procps vim
 
 
 ### MAKE SURE EVERYTHING ABOVE THIS LINE IS IN SYNC WITH Dockerfile-prod ###

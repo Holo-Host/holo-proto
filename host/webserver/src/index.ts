@@ -13,7 +13,7 @@ type Hash = string
 
 interface DispatchRequest {
   agentHash: Hash;
-  appHash: Hash;
+  dnaHash: Hash;
   isSession: boolean;
   rpc: {
     zome: string,
@@ -34,9 +34,9 @@ app.use(bodyParser.json())
 
 app.post('/dispatch', (req, res) => {
 
-  const { agentHash, appHash, isSession, rpc } = req.body
+  const { agentHash, dnaHash, isSession, rpc } = req.body
 
-  if (!agentHash || !appHash || !rpc) {
+  if (!agentHash || !dnaHash || !rpc) {
     res.status(400).send('missing required param(s)')
     return
   }
@@ -65,18 +65,18 @@ app.post('/dispatch', (req, res) => {
       })
   }
 
-  if (isAppInstalled(appHash, res)) {
+  if (isAppInstalled(dnaHash, res)) {
     if (userExists(agentHash)) {
       console.log('user exists...')
       const foundHash = C.getUserDnaHash(agentHash)
-      if (appHash !== foundHash) {
-        throw new Error(`App hash does not match installed user app: '${appHash}' vs. '${foundHash}'`)
+      if (dnaHash !== foundHash) {
+        throw new Error(`App hash does not match installed user app: '${dnaHash}' vs. '${foundHash}'`)
       } else {
         handleRequest()
       }
     } else {
       console.log('ready to create user...')
-      createUser(agentHash, appHash).then(() => handleRequest())
+      createUser(agentHash, dnaHash).then(() => handleRequest())
     }
   }
 
@@ -86,13 +86,13 @@ app.listen(8000)
 
 const switchboardUrl = (port, zome, func) => `http://localhost:${port}/fn/${zome}/${func}`
 
-const isAppInstalled = (appHash: Hash, res) => {
+const isAppInstalled = (dnaHash: Hash, res) => {
   const hashes = getInstalledApps().map(app => app.hash)
-  const found = hashes.find(hash => hash === appHash) !== undefined
+  const found = hashes.find(hash => hash === dnaHash) !== undefined
   if (!found) {
     const hashesDisplay = hashes.map(h => `- ${h}`).join("\n")
     res.status(404).send(
-`App DNA is not registered with this host: ${appHash}.
+`App DNA is not registered with this host: ${dnaHash}.
 ${hashes.length} Available hashes:
 ${hashesDisplay}`
     )
@@ -101,15 +101,15 @@ ${hashesDisplay}`
   return true
 }
 
-const isAppRegisteredP = (appHash: Hash) =>
+const isAppRegisteredP = (dnaHash: Hash) =>
   getRegisteredApps()
     .then(entries => {
-      const hashes = entries.data.map(app => app.appHash)
-      const app = hashes.find(hash => appHash === hash)
+      const hashes = entries.data.map(app => app.dnaHash)
+      const app = hashes.find(hash => dnaHash === hash)
       if (!app) {
         const hashesDisplay = hashes.map(h => `- ${h}`).join("\n")
         throw new Error(
-`App DNA is not registered with this host: ${appHash}.
+`App DNA is not registered with this host: ${dnaHash}.
 ${hashes.length} Available hashes:
 ${hashesDisplay}`
         )
@@ -133,14 +133,14 @@ const getInstalledApps = () => {
   })
 }
 
-const getAppByHash = appHash => getInstalledApps().find(app => app.hash === appHash)
+const getAppByHash = dnaHash => getInstalledApps().find(app => app.hash === dnaHash)
 
 const getRegisteredApps = () => {
   return axios.post(switchboardUrl(C.SWITCHBOARD_PORT, 'management', 'getRegisteredApps')).catch(err => {throw new Error('getRegisteredApps: ' + err)})
 }
 
-const createUser = (agentHash, appHash): Promise<any> => {
-  const app = getAppByHash(appHash)
+const createUser = (agentHash, dnaHash): Promise<any> => {
+  const app = getAppByHash(dnaHash)
   return new Promise((fulfill, reject) => {
     if (app) {
       console.log(`spawning agent for app: ${JSON.stringify(app)}`)
@@ -155,7 +155,7 @@ const createUser = (agentHash, appHash): Promise<any> => {
         }
       })
     } else {
-      reject(`No app installed with hash: ${appHash}`)
+      reject(`No app installed with hash: ${dnaHash}`)
     }
   })
 }

@@ -4,7 +4,13 @@ function info {
   echo "[init-chain] $1"
 }
 
-function joinapp {
+function install-app {
+  hcadmin join /hosted-happs/$1 $1
+  DNA_HASH=`cat .holochain/$1/dna.hash`
+  echo "hApp $1 installed, dna = $DNA_HASH"
+}
+
+function join-app {
   info "hcadmin join $2"
   HOLOCHAINCONFIG_DHTPORT=$3 \
   hcadmin join $1 $2
