@@ -16,19 +16,11 @@ Have Docker installed. Then build the containers with:
 
     docker-compose build
 
-Now decide if you want to run in development mode for iterating on the code, or just bake a "production-ready" assortment of containers with everything baked in.
-
-### "Production-ready" build
-
-After you've built the containers, simply invoke:
-
-    docker-compose -f docker-compose.yml up
-
-And all services will spin up. Eventually a web server will be available at http://localhost:8000
+Now decide if you want to run in development mode for iterating on the code, or just build a "production-ready" assortment of containers with everything baked in.
 
 ### Development mode
 
-For iterating on the code, your final docker-compose command will be different, and you'll have to run some watch scripts to compile your TypeScript on the fly. Additionally, you might choose to only run one containered service at a time.
+For iterating on the code, you'll want to follow these steps to have the quickest turnaround time. You have to run some watch scripts to compile your TypeScript on the fly, and the first time you run, you'll have to run `yarn install` in three different directories.
 
 #### Host service
 
@@ -38,7 +30,7 @@ You'll want to run watch scripts for the host server:
     yarn install  # first time only
     npm run watch
 
-And for the hosting apps (switchboard and accountant)
+And for the Accountant app
 
     cd ./host/hosting-happs
     yarn install  # first time only
@@ -53,30 +45,50 @@ Then, to spin up the containers, run the following (note the difference from the
 
     docker-compose up
 
-By omitting the -f flag, docker-compose also loads `docker-compose.override.yml`, which contains extra configuration to map your local code into the containers for fast code editing.
+Note that by default `docker-compose.override.yml` will also be loaded, which contains extra configuration to map your local code into the containers for fast code editing.
+
+### "Production-ready" build
+
+After you've built the containers, simply invoke:
+
+    docker-compose -f docker-compose.yml up
+
+And all services will spin up. Eventually a web server will be available at http://localhost:8000
+
+Note that by including the `-f` flag, `docker-compose.override.yml` is omitted from the configuration, which is what produces the production build.
 
 ## Usage
 
-> NB: Here, "host machine" is used in the Docker sense, not the Holo sense. Confusingly, the host machine is the machine of the person reading this, and the containered app is the Holo host environment.
+*TODO: move to own README once other components are built*
 
-Once the container is fully running, a web server on port 8000 will be available to the host machine. This communicates with a Switchboard hApp running on port 4000 (not exposed). 
+`docker-compose up` will install some apps for you to play with. Check `host/bin/startup` to see which apps are available. The installed DNAs will also be output during startup.
 
-So, to kick things off, since there is no Holo-enabled UI set up yet, just send an HTTP request to the entry point:
+Once the container is fully running, a web server on port 8000 will be available to the host machine ("host" in the Docker sense, not the Holo sense!), and can start receiving requests.
+
+### Making requests to hApps
+
+Just send an HTTP request to the entry point:
 
 ```
 POST http://localhost/dispatch:8000
 {
-    "agentHash": "a1",
-    "appHash": "QmbZeFchQ3gtc1ZUUpZSSsznZDjyeq1dJMBq12hCohpygH",
+    "agentHash": "agent007",
+    "dnaHash": "QmbZeFchQ3gtc1ZUUpZSSsznZDjyeq1dJMBq12hCohpygH",
     "rpc": {
         "zome": "sampleZome",
         "func": "sampleEntryCreate",
-        "args": {"text": "some more text"}
+        "args": {"text": "some text"}
     }
 }
 ```
 
-This will send a request through the Holo system running in the Docker container, targeting the sample app (see [sample-app-1](host/hosted-happs/sample-app-1)). Note you will have to change the `appHash` parameter here as the sample app's DNA changes.
+* `agentHash` can be anything, it is just used to distinguish different users. **NB**: make sure this is completely distinct, i.e. don't use the same agentHash for multiple DNAs.
+* `dnaHash` is the hash of one of the apps which has been installed by the `startup` script.
+* `rpc` contains the info for running the hosted zome function, and will ultimately result in a bridge call from the Accountant to the hosted DNA.
+
+Note that the first time this function is called for a new Agent/DNA pair, a new agent will be set up, namely: 
+* a new UNIX user will be created at `/agents/{agentHash}` 
+* a new instance of the hApp, along with its Accountant, will be installed in the user's home directory
 
 ## What's going on here?
 
@@ -86,7 +98,7 @@ To get oriented, start at [docker-compose.yml](docker-compose.yml) to see what s
 
 See https://hackmd.io/izTLhcWQQBqZHAjXG0r_GA?both for much more detail.
 
-The [`startup`](host/bin/startup) script initializes the host identity and environment, installs the hosted hApps, and starts running the host's Switchboard instance as well as the web server at port 8000.
+The [`startup`](host/bin/startup) script initializes the host identity and environment, installs the hosted hApps, and starts running the web server at port 8000.
 
 When the web server receives a valid request, it dispatches the request to the approprate agent's app ecosystem, or initializes the agent if it doesn't have a chain and user in this system yet.
 
