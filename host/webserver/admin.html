@@ -4,16 +4,24 @@
   <title>holo host admin</title>
 </head>
 <body>
-  <h1>holo host admin</h1>
+  <div class="container">
+    <h1>holo host admin</h1>
 
-  <h2>registered hApps:</h2>
-  <ul id="registered-happs"></ul>
+    <section>
+      <h2>registered hApps</h2>
+      <div id="registered-happs"></div>
+    </section>
 
-  <h2>hosted agents:</h2>
-  <ul id="hosted-happs"></ul>
+    <section>
+      <h2>hosted agents</h2>
+      <div id="hosted-happs"></div>
+    </section>
 
-  <h2>service logs</h2>
-  <div id="service-logs"></div>
+    <section>
+      <h2>service logs</h2>
+      <div id="service-logs"></div>
+    </section>
+  </div>
 
   <script type="text/javascript">
     window.addEventListener('load', () => {
@@ -24,23 +32,53 @@
     const displayApp = (hash, name) => `<pre>${hash} / ${name}</pre>`
 
     const addRegisteredApps = () => {
-      const ul = document.querySelector('#registered-happs')
+      const div = document.querySelector('#registered-happs')
       fetch('/api/happs/registered').then(r => r.json()).then(happs => {
-        const lis = happs.map(({name, hash}) => `
-          <li>${ displayApp(hash, name) }</li>
+        const rows = happs.map(({name, hash}) => `
+          <tr>
+            <td>${name}</td>
+            <td>${hash}</td>
+          </tr>
         `)
-        ul.innerHTML = lis.join('')
+        div.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>app name</th>
+                <th>DNA hash</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${ rows.join(' ') }
+            </tbody>
+          </table>
+        `
         addServiceLogs(happs)
       })
     }
 
     const addHostedApps = () => {
-      const ul = document.querySelector('#hosted-happs')
+      const div = document.querySelector('#hosted-happs')
       fetch('/api/happs/hosted').then(r => r.json()).then(happs => {
-        const lis = happs.map(({appName, dnaHash, agentHash}) => `
-            <li>${agentHash}: ${appName}</li>
+        const rows = happs.map(({appName, dnaHash, agentHash}) => `
+          <tr>
+            <td>${agentHash}</td>
+            <td>${appName}</td>
+          </tr>
         `)
-        ul.innerHTML = lis.join('')
+        div.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>(fake) agent hash</th>
+                <th>app name</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${ rows.join(' ') }
+            </tbody>
+          </table>
+        `
       })
     }
 
@@ -63,47 +101,112 @@
                 </tr>
               `
             } else {
-              rows = bundle.map(serviceLog => `
-                <tr>
-                  <td><i>TODO</i></td>
-                  <td>${ JSON.stringify(serviceLog.metrics) }</td>
-                </tr>
-              `)
+              rows = bundle.map(serviceLog => {
+                const timestamp = serviceLog.timestamp
+                const metrics = `
+                  in: ${serviceLog.metrics.bytesIn}B,
+                  out: ${serviceLog.metrics.bytesOut}B,
+                  cpu: ${serviceLog.metrics.cpuTime.toFixed(2)}s
+                `
+                const signatureStatus = serviceLog.signature ? 'yes' : 'no'
+                return `
+                  <tr>
+                    <td>${ timestamp }</td>
+                    <td>${ metrics }</td>
+                    <td class="signature-${signatureStatus}">${ signatureStatus }</td>
+                  </tr>
+                `
+              })
             }
             return `
-              <tr><th colspan="3">${ agentHash }</th></tr>
-              ${ rows }
+              <tbody>
+                <tr>
+                  <th colspan="3">
+                    <span class="light">agent</span>
+                    ${ agentHash }
+                  </th>
+                </tr>
+                ${ rows }
+              </tbody>
             `
           })
           return `
-            <h3>${ happ.name }</h3>
             <table>
               <thead>
                 <tr>
-                  <th>Timestamp</th>
-                  <th>Metrics</th>
+                  <th class="app-name" colspan="3">
+                    ${ happ.name }
+                  </th>
+                </tr>
+                <tr>
+                  <th>timestamp</th>
+                  <th>metrics</th>
+                  <th>signed?</th>
                 </tr>
               </thead>
-              <tbody>
-                ${ blocks }
-              </tbody>
+              ${ blocks.join(' ') }
             </table>
           `
         })
-        div.innerHTML = items.join('\n')
+        div.innerHTML = items.join(' ')
       })
     }
   </script>
 
   <style type="text/css">
-    td, th {
+    body {
+      text-align: center;
+      background: #ddd;
+      font-family: sans-serif;
+    }
+    table {
+      text-align: left;
+      margin: auto;
       border-collapse: collapse;
-      padding: 5px;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+    section {
+      margin: 20px auto;
+    }
+    section h2 {
+      display: inline-block;
+      background: #333;
+      color: white;
+      padding: 10px 25px;
+      margin: 20px auto;
+    }
+    td, th {
+      padding: 5px 10px;
       margin: 0;
-      border: 1px dotted black;
+      border: 1px solid #888;
+      background: white;
+    }
+    th {
+      text-align: center;
+      background: #bbb;
+    }
+    tbody th {
+      background: #ddd;
+    }
+    th.app-name {
+      background: #666;
+      color: #fff;
     }
     .error {
-      background: #faa;
+      color: #f66;
+    }
+    .signature-yes {
+      background: #aea;
+    }
+    .signature-no {
+      background: #eaa;
+    }
+    .light {
+      font-weight: 300;
+      font-size: 0.9em;
     }
   </style>
 </body>

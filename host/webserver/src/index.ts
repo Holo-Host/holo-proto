@@ -7,7 +7,7 @@ import * as path from 'path'
 
 import * as C from './common'
 import admin, {api} from './admin'
-import dispatch from './dispatch'
+import {dispatch, signLog} from './dispatch'
 
 const app = express()
 
@@ -15,6 +15,7 @@ app.use(bodyParser.text())
 app.use(bodyParser.json())
 
 app.post('/dispatch', dispatch)
+app.post('/signLog', signLog)
 app.get('/', admin)
 app.get('/api/happs/registered', api.happs.registered)
 app.get('/api/happs/hosted', api.happs.hosted)

@@ -39,7 +39,7 @@ jq ".[0].Path = \"$HAPP_DIR\"" \
 # This is read by the web server to decide where to dispatch
 echo $ACCOUNTANT_PORT > ~/.holo-accountant-port
 
-info "starting service (will come online asyncrhonously)"
+info "starting service (will come online asynchronously)"
 cd $ACCOUNTANT_DIR
 
 HOLOCHAINCONFIG_DHTPORT=$ACCOUNTANT_DHTPORT \

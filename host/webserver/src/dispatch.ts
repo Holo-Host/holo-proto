@@ -17,38 +17,18 @@ interface DispatchRequest {
   };
 }
 
-export default (req, res) => {
+// TODO: split into dispatch and signature cases
+export const dispatch = (req, res) => {
 
   const { agentHash, dnaHash, isSession, rpc } = req.body
+  const endpoint = `accountant/handleRequest`
 
   if (!agentHash || !dnaHash || !rpc) {
     res.status(400).send('missing required param(s)')
     return
   }
 
-  const handleRequest = () => {
-    const port = C.getAccountantPort(agentHash)
-    const url = `http://localhost:${port}/fn/accountant/handleRequest`
-    console.log(`Calling ${url}:${port}`)
-    axios.post(url, rpc)
-      .then(payload => {
-        res.status(payload.status).json(payload.data)
-      })
-      .catch(err => {
-        const { request, response } = err
-        if (response) {
-          console.log(response.data)
-          res.status(response.status).send(response.data)
-        } else {
-          const msg = "RPC failed: " + err.message + ". Is the service running?"
-          res.status(500).send(msg)
-        }
-      })
-      .catch(err => {
-        console.error("Really bad error!! (Probably undefined response): ", err)
-        res.status(500).send(err)
-      })
-  }
+  const respond = () => requestHandler(res, agentHash, endpoint, rpc)
 
   if (C.isAppInstalled(dnaHash, res)) {
     if (userExists(agentHash)) {
@@ -57,13 +37,49 @@ export default (req, res) => {
       if (dnaHash !== foundHash) {
         throw new Error(`App hash does not match installed user app: '${dnaHash}' vs. '${foundHash}'`)
       } else {
-        handleRequest()
+        respond()
       }
     } else {
       console.log('ready to create user...')
-      createUser(agentHash, dnaHash).then(() => handleRequest())
+      createUser(agentHash, dnaHash).then(respond)
     }
   }
+}
+
+export const signLog = (req, res) => {
+  const { agentHash, logHash, signature } = req.body
+
+  if (!agentHash || !logHash || !signature) {
+    res.status(400).send('missing required param(s)')
+    return
+  }
+
+  requestHandler(res, agentHash, 'accountant/signLog', {logHash, signature})
+}
+
+const requestHandler = (res, agentHash, endpoint, request) => {
+  const port = C.getAccountantPort(agentHash)
+  const url = `http://localhost:${port}/fn/${endpoint}`
+  console.log(`Calling ${url}:${port}`)
+  axios
+    .post(url, request)
+    .then(payload => {
+      res.status(payload.status).json(payload.data)
+    })
+    .catch(err => {
+      const { request, response } = err
+      if (response) {
+        console.log(response.data)
+        res.status(response.status).send(response.data)
+      } else {
+        const msg = "RPC failed: " + err.message + ". Is the service running?"
+        res.status(500).send(msg)
+      }
+    })
+    .catch(err => {
+      console.error("Really bad error!! (Probably undefined response): ", err)
+      res.status(500).send(err)
+    })
 }
 
 const userExists = (agentHash: Hash): boolean =>
