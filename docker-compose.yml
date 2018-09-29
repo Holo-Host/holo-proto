@@ -1,8 +1,8 @@
 version: "3"
 
-volumes:
-  host-home-volume:
-  agent-home-volume:
+# volumes:
+#   host-home-volume:
+#   agent-home-volume:
 
 services:
   host:

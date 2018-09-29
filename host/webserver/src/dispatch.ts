@@ -41,7 +41,7 @@ export const dispatch = (req, res) => {
       }
     } else {
       console.log('ready to create user...')
-      createUser(agentHash, dnaHash).then(respond)
+      createUser(agentHash, dnaHash).then(respond).catch(err => res.status(err.status).send(err.message))
     }
   }
 }

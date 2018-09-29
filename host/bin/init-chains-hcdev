@@ -43,5 +43,5 @@ info "starting service (will come online asynchronously)"
 cd $ACCOUNTANT_DIR
 
 HOLOCHAINCONFIG_DHTPORT=$ACCOUNTANT_DHTPORT \
-hcdev web $ACCOUNTANT_PORT
-
+hcdev web $ACCOUNTANT_PORT &
+sleep 3  # in lieu of actually finding out if the service has started yet...
