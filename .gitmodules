@@ -1,6 +1,6 @@
 [submodule "host/hosting-happs"]
 	path = host/hosting-happs
-	url = git@github.com:Holo-Host/holo-host.git
+	url = git@github.com:Holo-Host/hosting-apps-proto.git
 [submodule "host/hosted-happs/sample-app-1"]
 	path = host/hosted-happs/sample-app-1
 	url = git@github.com:Holo-Host/holojs-sample-app.git
